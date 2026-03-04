@@ -1,557 +1,541 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
-<html>
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <meta http-equiv="Content-Style-Type" content="text/css">
-  <title></title>
-  <meta name="Generator" content="Cocoa HTML Writer">
-  <meta name="CocoaVersion" content="2685.4">
-  <style type="text/css">
-    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
-    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; min-height: 14.0px}
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KENTEX INDUSTRY Co., Ltd. | Precision Powder Metallurgy</title>
+    
+    <!-- Fonts: Open Sans as requested -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Open Sans"', 'sans-serif'],
+                        display: ['"Open Sans"', 'sans-serif'],
+                    },
+                    colors: {
+                        background: '#FFFFFF', // Pure White
+                        surface: '#F8F9FA',    // Very light gray for depth
+                        accent: {
+                            DEFAULT: '#4A4A4A', // Precision Gray
+                            light: '#7A7A7A',
+                            dark: '#2A2A2A'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Iconify -->
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+
+    <!-- GSAP & Anime.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+
+    <style>
+        /* Base Styles & Custom Properties */
+        :root {
+            --cursor-x: 50vw;
+            --cursor-y: 50vh;
+        }
+        
+        body {
+            background-color: theme('colors.background');
+            color: theme('colors.accent.DEFAULT');
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Typography & Selection */
+        ::selection {
+            background: theme('colors.accent.DEFAULT');
+            color: #fff;
+        }
+
+        /* Global Noise Texture (Light optimized) */
+        .noise-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            pointer-events: none; z-index: 9998; opacity: 0.03;
+            background: url('data:image/svg+xml;utf8,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noiseFilter"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noiseFilter)"/%3E%3C/svg%3E');
+        }
+
+        /* Flashlight Halo Effect for Light Mode (Subtle shadow) */
+        .flashlight {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            pointer-events: none;
+            z-index: 9997;
+            background: radial-gradient(
+                circle 800px at var(--cursor-x) var(--cursor-y), 
+                transparent 0%, 
+                rgba(0, 0, 0, 0.03) 100%
+            );
+            will-change: background;
+        }
+
+        /* Vertical Container Reference Lines */
+        .grid-lines {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            pointer-events: none; z-index: 0;
+            display: flex; justify-content: space-between; padding: 0 5vw;
+        }
+        
+        .grid-line {
+            width: 1px; height: 100%;
+            background: rgba(74, 74, 74, 0.06);
+        }
+
+        /* Advanced Glassmorphism Cards (Light Mode) */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(74, 74, 74, 0.1);
+            border-radius: 1rem;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.03);
+            transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), 
+                        box-shadow 0.4s ease, 
+                        border-color 0.4s ease;
+        }
+
+        .glass-card:hover {
+            border-color: rgba(74, 74, 74, 0.3);
+            transform: translateY(-5px);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.06);
+        }
+
+        /* Image Card Specific */
+        .img-card-wrap {
+            overflow: hidden;
+            border-radius: 0.75rem;
+        }
+        
+        .img-card-wrap img {
+            transition: transform 0.7s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+        
+        .glass-card:hover .img-card-wrap img {
+            transform: scale(1.05);
+        }
+
+        /* Sonar Pulse Effect */
+        .sonar-emitter {
+            position: relative;
+        }
+        
+        .sonar-emitter::before, .sonar-emitter::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            background-color: transparent;
+            border: 1px solid theme('colors.accent.DEFAULT');
+            z-index: -1;
+            animation: sonarPulse 2.5s cubic-bezier(0, 0, 0.2, 1) infinite;
+        }
+        
+        .sonar-emitter::after {
+            animation-delay: 1.25s;
+        }
+
+        @keyframes sonarPulse {
+            0% { transform: scale(1); opacity: 0.5; }
+            100% { transform: scale(1.6); opacity: 0; }
+        }
+
+        /* Numbering Decoration */
+        .section-num {
+            font-weight: 700;
+            font-size: 0.875rem;
+            letter-spacing: 0.2em;
+            color: theme('colors.accent.light');
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            text-transform: uppercase;
+        }
+        .section-num::after {
+            content: ''; height: 1px; width: 40px;
+            background: theme('colors.accent.light');
+        }
+
+    </style>
 </head>
-<body>
-<p class="p1">&lt;!DOCTYPE html&gt;</p>
-<p class="p1">&lt;html lang="en" class="scroll-smooth"&gt;</p>
-<p class="p1">&lt;head&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta charset="UTF-8"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;title&gt;KENTEX INDUSTRY Co., Ltd. | Precision Powder Metallurgy&lt;/title&gt;</p>
-<p class="p2"><span class="Apple-converted-space">    </span></p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;!-- Fonts: Open Sans as requested --&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;link rel="preconnect" href="https://fonts.googleapis.com"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;link rel="preconnect" href="https://fonts.gstatic.com" crossorigin&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,600;0,700;0,800;1,400&amp;display=swap" rel="stylesheet"&gt;</p>
-<p class="p2"><span class="Apple-converted-space">    </span></p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;!-- Tailwind CSS --&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;script src="https://cdn.tailwindcss.com"&gt;&lt;/script&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;script&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>tailwind.config = {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>theme: {</p>
-<p class="p1"><span class="Apple-converted-space">                </span>extend: {</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>fontFamily: {</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>sans: ['"Open Sans"', 'sans-serif'],</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>display: ['"Open Sans"', 'sans-serif'],</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>},</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>colors: {</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>background: '#FFFFFF', // Pure White</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>surface: '#F8F9FA',<span class="Apple-converted-space">    </span>// Very light gray for depth</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>accent: {</p>
-<p class="p1"><span class="Apple-converted-space">                            </span>DEFAULT: '#4A4A4A', // Precision Gray</p>
-<p class="p1"><span class="Apple-converted-space">                            </span>light: '#7A7A7A',</p>
-<p class="p1"><span class="Apple-converted-space">                            </span>dark: '#2A2A2A'</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>}</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">                </span>}</p>
-<p class="p1"><span class="Apple-converted-space">            </span>}</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;/script&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;!-- Iconify --&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"&gt;&lt;/script&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;!-- GSAP &amp; Anime.js --&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"&gt;&lt;/script&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"&gt;&lt;/script&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"&gt;&lt;/script&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;style&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>/* Base Styles &amp; Custom Properties */</p>
-<p class="p1"><span class="Apple-converted-space">        </span>:root {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>--cursor-x: 50vw;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>--cursor-y: 50vh;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><span class="Apple-converted-space">        </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>body {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>background-color: theme('colors.background');</p>
-<p class="p1"><span class="Apple-converted-space">            </span>color: theme('colors.accent.DEFAULT');</p>
-<p class="p1"><span class="Apple-converted-space">            </span>overflow-x: hidden;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>-webkit-font-smoothing: antialiased;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>/* Typography &amp; Selection */</p>
-<p class="p1"><span class="Apple-converted-space">        </span>::selection {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>background: theme('colors.accent.DEFAULT');</p>
-<p class="p1"><span class="Apple-converted-space">            </span>color: #fff;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>/* Global Noise Texture (Light optimized) */</p>
-<p class="p1"><span class="Apple-converted-space">        </span>.noise-overlay {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>position: fixed;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>top: 0; left: 0; width: 100vw; height: 100vh;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>pointer-events: none; z-index: 9998; opacity: 0.03;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>background: url('data:image/svg+xml;utf8,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noiseFilter"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noiseFilter)"/%3E%3C/svg%3E');</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>/* Flashlight Halo Effect for Light Mode (Subtle shadow) */</p>
-<p class="p1"><span class="Apple-converted-space">        </span>.flashlight {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>position: fixed;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>top: 0; left: 0; right: 0; bottom: 0;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>pointer-events: none;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>z-index: 9997;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>background: radial-gradient(</p>
-<p class="p1"><span class="Apple-converted-space">                </span>circle 800px at var(--cursor-x) var(--cursor-y),<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">                </span>transparent 0%,<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">                </span>rgba(0, 0, 0, 0.03) 100%</p>
-<p class="p1"><span class="Apple-converted-space">            </span>);</p>
-<p class="p1"><span class="Apple-converted-space">            </span>will-change: background;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>/* Vertical Container Reference Lines */</p>
-<p class="p1"><span class="Apple-converted-space">        </span>.grid-lines {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>position: fixed;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>top: 0; left: 0; width: 100vw; height: 100vh;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>pointer-events: none; z-index: 0;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>display: flex; justify-content: space-between; padding: 0 5vw;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><span class="Apple-converted-space">        </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>.grid-line {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>width: 1px; height: 100%;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>background: rgba(74, 74, 74, 0.06);</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>/* Advanced Glassmorphism Cards (Light Mode) */</p>
-<p class="p1"><span class="Apple-converted-space">        </span>.glass-card {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>background: rgba(255, 255, 255, 0.7);</p>
-<p class="p1"><span class="Apple-converted-space">            </span>backdrop-filter: blur(24px);</p>
-<p class="p1"><span class="Apple-converted-space">            </span>-webkit-backdrop-filter: blur(24px);</p>
-<p class="p1"><span class="Apple-converted-space">            </span>border: 1px solid rgba(74, 74, 74, 0.1);</p>
-<p class="p1"><span class="Apple-converted-space">            </span>border-radius: 1rem;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>position: relative;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>overflow: hidden;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>box-shadow: 0 10px 40px rgba(0, 0, 0, 0.03);</p>
-<p class="p1"><span class="Apple-converted-space">            </span>transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1),<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">                        </span>box-shadow 0.4s ease,<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">                        </span>border-color 0.4s ease;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>.glass-card:hover {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>border-color: rgba(74, 74, 74, 0.3);</p>
-<p class="p1"><span class="Apple-converted-space">            </span>transform: translateY(-5px);</p>
-<p class="p1"><span class="Apple-converted-space">            </span>box-shadow: 0 20px 50px rgba(0, 0, 0, 0.06);</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>/* Image Card Specific */</p>
-<p class="p1"><span class="Apple-converted-space">        </span>.img-card-wrap {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>overflow: hidden;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>border-radius: 0.75rem;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><span class="Apple-converted-space">        </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>.img-card-wrap img {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>transition: transform 0.7s cubic-bezier(0.25, 1, 0.5, 1);</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><span class="Apple-converted-space">        </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>.glass-card:hover .img-card-wrap img {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>transform: scale(1.05);</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>/* Sonar Pulse Effect */</p>
-<p class="p1"><span class="Apple-converted-space">        </span>.sonar-emitter {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>position: relative;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><span class="Apple-converted-space">        </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>.sonar-emitter::before, .sonar-emitter::after {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>content: '';</p>
-<p class="p1"><span class="Apple-converted-space">            </span>position: absolute;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>inset: 0;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>border-radius: inherit;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>background-color: transparent;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>border: 1px solid theme('colors.accent.DEFAULT');</p>
-<p class="p1"><span class="Apple-converted-space">            </span>z-index: -1;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>animation: sonarPulse 2.5s cubic-bezier(0, 0, 0.2, 1) infinite;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><span class="Apple-converted-space">        </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>.sonar-emitter::after {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>animation-delay: 1.25s;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>@keyframes sonarPulse {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>0% { transform: scale(1); opacity: 0.5; }</p>
-<p class="p1"><span class="Apple-converted-space">            </span>100% { transform: scale(1.6); opacity: 0; }</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>/* Numbering Decoration */</p>
-<p class="p1"><span class="Apple-converted-space">        </span>.section-num {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>font-weight: 700;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>font-size: 0.875rem;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>letter-spacing: 0.2em;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>color: theme('colors.accent.light');</p>
-<p class="p1"><span class="Apple-converted-space">            </span>display: flex;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>align-items: center;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>gap: 1rem;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>text-transform: uppercase;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p1"><span class="Apple-converted-space">        </span>.section-num::after {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>content: ''; height: 1px; width: 40px;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>background: theme('colors.accent.light');</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;/style&gt;</p>
-<p class="p1">&lt;/head&gt;</p>
-<p class="p1">&lt;body class="antialiased selection:bg-accent selection:text-white"&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;!-- Environmental Layers --&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="flashlight hidden md:block"&gt;&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="noise-overlay"&gt;&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="grid-lines"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="grid-line"&gt;&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="grid-line"&gt;&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="grid-line"&gt;&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="grid-line"&gt;&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="grid-line"&gt;&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;!-- Navigation --&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;nav class="fixed top-0 left-0 w-full z-50 px-6 py-6 flex justify-between items-center transition-all duration-500 bg-white/80 backdrop-blur-md border-b border-gray-100" id="navbar"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="text-2xl font-bold tracking-tight uppercase cursor-pointer text-accent"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>KENTEX&lt;span class="text-accent-light"&gt;.&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="hidden md:flex gap-8 text-sm font-semibold tracking-wider text-accent-light"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;a href="#strengths" class="hover:text-accent transition-colors"&gt;STRENGTHS&lt;/a&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;a href="#products" class="hover:text-accent transition-colors"&gt;PRODUCTS&lt;/a&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;a href="#history" class="hover:text-accent transition-colors"&gt;HISTORY&lt;/a&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;a href="#contact" class="text-xs font-bold tracking-widest border border-accent rounded-full px-6 py-3 hover:bg-accent hover:text-white transition-colors duration-300"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>CONSULT OUR EXPERTS</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/a&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;/nav&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;!-- SECTION 1: Hero Section --&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;header class="relative w-full h-screen flex flex-col justify-center items-center overflow-hidden z-10 px-6 bg-white"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;!-- Background Image with Parallax --&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="absolute inset-0 z-0 scale-110" id="hero-bg"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;!-- Light overlay to ensure text readability --&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="absolute inset-0 bg-white/60 backdrop-blur-[2px] z-10"&gt;&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;!-- Drive Link with Unsplash Fallback --&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;img src="https://drive.google.com/uc?export=view&amp;id=1t0atjZls8MAKEmnuXNH07LzlHWi7I6dh"<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">                 </span>onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1565514020179-026b92b84bb6?q=80&amp;w=2070&amp;auto=format&amp;fit=crop';"</p>
-<p class="p1"><span class="Apple-converted-space">                 </span>alt="Precision Powder Metallurgy"<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">                 </span>class="w-full h-full object-cover filter grayscale opacity-80"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="relative z-10 max-w-7xl w-full flex flex-col items-start pt-20"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;!-- Vertical Text Clip Slide (Anime.js Target) --&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;h1 class="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tighter w-full text-accent pb-4 leading-[1.1]"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="overflow-hidden relative pt-2"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;span class="block translate-y-[110%] hero-line"&gt;Precision in&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="overflow-hidden relative pt-2"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;span class="block translate-y-[110%] hero-line"&gt;Every Grain.&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="overflow-hidden relative pt-2 mt-4 md:mt-2"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;span class="block text-accent-light translate-y-[110%] hero-line pb-4"&gt;Reliability in Every Gear.&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;/h1&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="mt-8 md:mt-16 flex flex-col md:flex-row justify-between w-full gap-8 border-t border-accent/10 pt-8 overflow-hidden"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;p class="max-w-xl text-accent-light text-lg md:text-xl font-normal leading-relaxed opacity-0 translate-y-8" id="hero-desc"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>A leading powder metallurgy manufacturer, serving global industries with nearly half a century of manufacturing excellence.</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;/p&gt;</p>
-<p class="p2"><span class="Apple-converted-space">                </span></p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;a href="#contact" class="flex items-center gap-6 opacity-0 translate-y-8 group w-max" id="hero-cta"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="w-16 h-16 rounded-full border border-accent flex items-center justify-center cursor-pointer bg-white shadow-lg sonar-emitter group-hover:bg-accent transition-colors duration-500"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;iconify-icon icon="solar:arrow-right-down-linear" class="text-2xl text-accent group-hover:text-white transition-colors"&gt;&lt;/iconify-icon&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;span class="text-sm tracking-widest uppercase font-bold text-accent"&gt;Initiate Project&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;/a&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;/header&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;!-- SECTION 2: Core Strengths --&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;section id="strengths" class="relative z-10 py-32 px-6 w-full flex justify-center bg-surface"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="max-w-7xl w-full"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="flex flex-col md:flex-row justify-between items-end mb-16 gap-8"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;p class="section-num mb-6 gs-scroll-reveal opacity-0"&gt;Core Strengths&lt;/p&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;h2 class="text-4xl md:text-5xl font-bold tracking-tight text-accent overflow-hidden"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;span class="block gs-title-slide translate-y-[110%]"&gt;Our Competitive Edge&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/h2&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="grid grid-cols-1 md:grid-cols-3 gap-8"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;!-- Strength 1 --&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="glass-card p-10 flex flex-col gs-card opacity-0 translate-y-12"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="w-14 h-14 rounded-lg bg-accent/5 flex items-center justify-center mb-8"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;iconify-icon icon="solar:medal-ribbon-bold-duotone" class="text-4xl text-accent"&gt;&lt;/iconify-icon&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;h3 class="text-2xl font-bold mb-4"&gt;Premium Quality&lt;/h3&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;p class="text-accent-light font-normal leading-relaxed"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>Inheriting manufacturing excellence since 1978, deeply rooted in Taiwan's advanced powder metallurgy technology.</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/p&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;!-- Strength 2 --&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="glass-card p-10 flex flex-col gs-card opacity-0 translate-y-12"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="w-14 h-14 rounded-lg bg-accent/5 flex items-center justify-center mb-8"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;iconify-icon icon="solar:chart-square-bold-duotone" class="text-4xl text-accent"&gt;&lt;/iconify-icon&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;h3 class="text-2xl font-bold mb-4"&gt;Competitive Pricing&lt;/h3&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;p class="text-accent-light font-normal leading-relaxed"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>Delivering world-class standards while providing the most optimized cost structure for our global partners.</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/p&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;!-- Strength 3 --&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="glass-card p-10 flex flex-col gs-card opacity-0 translate-y-12"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="w-14 h-14 rounded-lg bg-accent/5 flex items-center justify-center mb-8"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;iconify-icon icon="solar:box-minimalistic-bold-duotone" class="text-4xl text-accent"&gt;&lt;/iconify-icon&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;h3 class="text-2xl font-bold mb-4"&gt;One-Stop Solutions&lt;/h3&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;p class="text-accent-light font-normal leading-relaxed"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>Integrating Taiwan's industrial supply chain to meet comprehensive needs from processing to post-treatment.</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/p&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;/section&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;!-- SECTION 3: Product Showcase --&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;section id="products" class="relative z-10 py-32 px-6 w-full flex justify-center bg-white border-y border-gray-100"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="max-w-7xl w-full"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="text-center mb-20 flex flex-col items-center"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;p class="section-num mb-6 gs-scroll-reveal opacity-0 justify-center"&gt;Product Showcase&lt;/p&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;h2 class="text-4xl md:text-5xl font-bold tracking-tight text-accent overflow-hidden mb-6"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;span class="block gs-title-slide translate-y-[110%]"&gt;Engineered Applications&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;/h2&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;p class="max-w-2xl text-accent-light gs-scroll-reveal opacity-0"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>Extensively serving global industries including household hardware and the automotive aftermarket.</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;/p&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="grid grid-cols-1 md:grid-cols-3 gap-8"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;!-- Card 1 --&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="glass-card flex flex-col gs-card opacity-0 translate-y-12 group cursor-pointer"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="img-card-wrap h-64 m-2"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;img src="https://drive.google.com/uc?export=view&amp;id=1Mn-6g3sc7wAJlxCT2jzajH6vHpJpLn2C"<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">                             </span>onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?q=80&amp;w=1000&amp;auto=format&amp;fit=crop';"</p>
-<p class="p1"><span class="Apple-converted-space">                             </span>alt="Transportation Components" class="w-full h-full object-cover filter grayscale contrast-125"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="p-8 flex-grow flex flex-col justify-between"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;h3 class="text-xl font-bold mb-6"&gt;Transportation Components&lt;/h3&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;a href="#" class="inline-flex items-center gap-2 text-sm font-bold text-accent group-hover:text-black transition-colors"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                            </span>&lt;iconify-icon icon="solar:document-text-bold-duotone" class="text-lg"&gt;&lt;/iconify-icon&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                            </span>Download Detailed Catalog</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/a&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
-<p class="p2"><span class="Apple-converted-space">                </span></p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;!-- Card 2 --&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="glass-card flex flex-col gs-card opacity-0 translate-y-12 group cursor-pointer"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="img-card-wrap h-64 m-2"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;img src="https://drive.google.com/uc?export=view&amp;id=1jqUKysXviw9oxXuJDcaI87CUFwWJHA5w"<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">                             </span>onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&amp;w=1000&amp;auto=format&amp;fit=crop';"</p>
-<p class="p1"><span class="Apple-converted-space">                             </span>alt="CNC Machined Products" class="w-full h-full object-cover filter grayscale contrast-125"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="p-8 flex-grow flex flex-col justify-between"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;h3 class="text-xl font-bold mb-6"&gt;CNC Machined Products&lt;/h3&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;a href="#" class="inline-flex items-center gap-2 text-sm font-bold text-accent group-hover:text-black transition-colors"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                            </span>&lt;iconify-icon icon="solar:document-text-bold-duotone" class="text-lg"&gt;&lt;/iconify-icon&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                            </span>Download Detailed Catalog</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/a&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;!-- Card 3 --&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="glass-card flex flex-col gs-card opacity-0 translate-y-12 group cursor-pointer"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="img-card-wrap h-64 m-2"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;img src="https://drive.google.com/uc?export=view&amp;id=1IAHaIj6K1sHUgEDo0kkI5CtfLYfPn0Ev"<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">                             </span>onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1537563063548-26156e729a8d?q=80&amp;w=1000&amp;auto=format&amp;fit=crop';"</p>
-<p class="p1"><span class="Apple-converted-space">                             </span>alt="High-Precision Transmission" class="w-full h-full object-cover filter grayscale contrast-125"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="p-8 flex-grow flex flex-col justify-between"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;h3 class="text-xl font-bold mb-6"&gt;High-Precision Transmission&lt;/h3&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;a href="#" class="inline-flex items-center gap-2 text-sm font-bold text-accent group-hover:text-black transition-colors"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                            </span>&lt;iconify-icon icon="solar:document-text-bold-duotone" class="text-lg"&gt;&lt;/iconify-icon&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                            </span>Download Detailed Catalog</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/a&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;/section&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;!-- SECTION 4: Trust &amp; History --&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;section id="history" class="relative z-10 py-32 px-6 w-full bg-surface"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="max-w-5xl mx-auto w-full"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="text-center mb-16"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;p class="section-num justify-center mb-6 gs-scroll-reveal opacity-0"&gt;Trust &amp; History&lt;/p&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;h2 class="text-4xl font-bold tracking-tight text-accent overflow-hidden"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;span class="block gs-title-slide translate-y-[110%]"&gt;Decades of Reliability&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;/h2&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
-<p class="p2"><span class="Apple-converted-space">            </span></p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="flex flex-col md:flex-row justify-between items-center gap-16"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;!-- Milestones --&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="flex-1 border-l-2 border-accent/20 pl-8 space-y-10 gs-scroll-reveal opacity-0"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="relative"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;div class="absolute -left-[41px] top-1 w-5 h-5 bg-white border-4 border-accent rounded-full"&gt;&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;h4 class="text-3xl font-bold text-accent mb-2"&gt;1978&lt;/h4&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;p class="text-accent-light"&gt;Founded in Taiwan, establishing core metallurgy techniques.&lt;/p&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="relative"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;div class="absolute -left-[41px] top-1 w-5 h-5 bg-white border-4 border-accent rounded-full"&gt;&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;h4 class="text-3xl font-bold text-accent mb-2"&gt;2000 &amp; 2010&lt;/h4&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;p class="text-accent-light"&gt;Strategic facility expansions to meet global supply chain demands.&lt;/p&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;!-- ISO Certifications --&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="flex-1 flex justify-center gap-8 gs-scroll-reveal opacity-0"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="flex flex-col items-center gap-4 group"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;div class="w-32 h-32 rounded-full border border-gray-200 bg-white flex items-center justify-center shadow-sm group-hover:shadow-md transition-shadow"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                            </span>&lt;iconify-icon icon="solar:shield-check-bold-duotone" class="text-6xl text-accent"&gt;&lt;/iconify-icon&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;span class="font-bold text-accent tracking-wider"&gt;ISO 9001&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="flex flex-col items-center gap-4 group"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;div class="w-32 h-32 rounded-full border border-gray-200 bg-white flex items-center justify-center shadow-sm group-hover:shadow-md transition-shadow"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                            </span>&lt;iconify-icon icon="solar:leaf-bold-duotone" class="text-6xl text-accent"&gt;&lt;/iconify-icon&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;span class="font-bold text-accent tracking-wider"&gt;ISO 14001&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;/section&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;!-- SECTION 5: Footer / Contact --&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;footer id="contact" class="relative z-10 py-32 px-6 w-full bg-accent text-white overflow-hidden"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;!-- Abstract gradient blob --&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-white/5 rounded-full blur-[120px] pointer-events-none z-0"&gt;&lt;/div&gt;</p>
-<p class="p2"><span class="Apple-converted-space">        </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="max-w-7xl mx-auto w-full relative z-10 flex flex-col items-center text-center"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;h2 class="text-4xl md:text-6xl font-bold tracking-tighter mb-12 overflow-hidden"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;span class="block text-white/70 gs-title-slide translate-y-[110%] mb-2"&gt;Ready to start your next&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;span class="block text-white gs-title-slide translate-y-[110%]"&gt;precision project?&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;/h2&gt;</p>
-<p class="p2"><span class="Apple-converted-space">            </span></p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;a href="mailto:info@kentex-tw.com" class="relative overflow-hidden rounded-full bg-white text-accent font-bold uppercase tracking-widest px-12 py-6 text-sm md:text-base group shadow-2xl hover:shadow-[0_0_40px_rgba(255,255,255,0.2)] transition-shadow duration-500 gs-scroll-reveal opacity-0"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;span class="relative z-10 flex items-center gap-3"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;iconify-icon icon="solar:letter-bold-duotone" class="text-xl"&gt;&lt;/iconify-icon&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>info@kentex-tw.com</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="absolute inset-0 bg-gray-100 transform scale-y-0 group-hover:scale-y-100 origin-bottom transition-transform duration-500 ease-out z-0"&gt;&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;/a&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="max-w-7xl mx-auto w-full relative z-10 mt-32 flex flex-col md:flex-row justify-between items-center pt-8 border-t border-white/20 text-xs text-white/70 font-semibold tracking-widest uppercase"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="flex items-center gap-2 mb-4 md:mb-0"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;iconify-icon icon="solar:map-point-bold-duotone" class="text-lg"&gt;&lt;/iconify-icon&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>Headquarters: Taipei, Taiwan</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;p&gt;© 2026 KENTEX INDUSTRY Co., Ltd.&lt;/p&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;/footer&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;!-- Scripts --&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;script&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>document.addEventListener('DOMContentLoaded', () =&gt; {</p>
-<p class="p2"><span class="Apple-converted-space">            </span></p>
-<p class="p1"><span class="Apple-converted-space">            </span>// --- 1. Flashlight Halo Effect (Light Mode Optimized) ---</p>
-<p class="p1"><span class="Apple-converted-space">            </span>const updateFlashlight = (e) =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">                </span>document.documentElement.style.setProperty('--cursor-x', `${e.clientX}px`);</p>
-<p class="p1"><span class="Apple-converted-space">                </span>document.documentElement.style.setProperty('--cursor-y', `${e.clientY}px`);</p>
-<p class="p1"><span class="Apple-converted-space">            </span>};</p>
-<p class="p1"><span class="Apple-converted-space">            </span>window.addEventListener('mousemove', updateFlashlight);</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">            </span>// --- 2. Anime.js Initial Vertical Text Reveal (Hero) ---</p>
-<p class="p1"><span class="Apple-converted-space">            </span>// Animate Hero Main Titles (Vertical Clip Slide)</p>
-<p class="p1"><span class="Apple-converted-space">            </span>anime({</p>
-<p class="p1"><span class="Apple-converted-space">                </span>targets: '.hero-line',</p>
-<p class="p1"><span class="Apple-converted-space">                </span>translateY: ['110%', '0%'],</p>
-<p class="p1"><span class="Apple-converted-space">                </span>duration: 1200,</p>
-<p class="p1"><span class="Apple-converted-space">                </span>easing: 'easeOutQuint',</p>
-<p class="p1"><span class="Apple-converted-space">                </span>delay: anime.stagger(150, {start: 200})</p>
-<p class="p1"><span class="Apple-converted-space">            </span>});</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">            </span>// Animate Desc &amp; CTA</p>
-<p class="p1"><span class="Apple-converted-space">            </span>anime({</p>
-<p class="p1"><span class="Apple-converted-space">                </span>targets: ['#hero-desc', '#hero-cta'],</p>
-<p class="p1"><span class="Apple-converted-space">                </span>translateY: [30, 0],</p>
-<p class="p1"><span class="Apple-converted-space">                </span>opacity: [0, 1],</p>
-<p class="p1"><span class="Apple-converted-space">                </span>duration: 1000,</p>
-<p class="p1"><span class="Apple-converted-space">                </span>easing: 'easeOutExpo',</p>
-<p class="p1"><span class="Apple-converted-space">                </span>delay: anime.stagger(200, {start: 700})</p>
-<p class="p1"><span class="Apple-converted-space">            </span>});</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">            </span>// --- 3. GSAP Animations &amp; ScrollTrigger ---</p>
-<p class="p1"><span class="Apple-converted-space">            </span>gsap.registerPlugin(ScrollTrigger);</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">            </span>// Navbar behavior on scroll</p>
-<p class="p1"><span class="Apple-converted-space">            </span>let lastScroll = 0;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>const navbar = document.getElementById('navbar');</p>
-<p class="p1"><span class="Apple-converted-space">            </span>window.addEventListener('scroll', () =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">                </span>const currentScroll = window.pageYOffset;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>if (currentScroll &gt; 100 &amp;&amp; currentScroll &gt; lastScroll) {</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>navbar.style.transform = 'translateY(-100%)';</p>
-<p class="p1"><span class="Apple-converted-space">                </span>} else {</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>navbar.style.transform = 'translateY(0)';</p>
-<p class="p1"><span class="Apple-converted-space">                </span>}</p>
-<p class="p1"><span class="Apple-converted-space">                </span>lastScroll = currentScroll;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>});</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">            </span>// Parallax Hero Background</p>
-<p class="p1"><span class="Apple-converted-space">            </span>gsap.to('#hero-bg', {</p>
-<p class="p1"><span class="Apple-converted-space">                </span>yPercent: 30,</p>
-<p class="p1"><span class="Apple-converted-space">                </span>ease: 'none',</p>
-<p class="p1"><span class="Apple-converted-space">                </span>scrollTrigger: {</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>trigger: 'header',</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>start: 'top top',</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>end: 'bottom top',</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>scrub: true</p>
-<p class="p1"><span class="Apple-converted-space">                </span>}</p>
-<p class="p1"><span class="Apple-converted-space">            </span>});</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">            </span>// Reveal Titles on Scroll</p>
-<p class="p1"><span class="Apple-converted-space">            </span>const slideTitles = document.querySelectorAll('.gs-title-slide');</p>
-<p class="p1"><span class="Apple-converted-space">            </span>slideTitles.forEach(title =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">                </span>gsap.to(title, {</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>y: '0%',</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>duration: 1.2,</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>ease: 'power4.out',</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>scrollTrigger: {</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>trigger: title.closest('.overflow-hidden') || title,</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>start: 'top 85%',</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">                </span>});</p>
-<p class="p1"><span class="Apple-converted-space">            </span>});</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">            </span>// Generic Fade/Up reveals</p>
-<p class="p1"><span class="Apple-converted-space">            </span>const revealElements = document.querySelectorAll('.gs-scroll-reveal');</p>
-<p class="p1"><span class="Apple-converted-space">            </span>revealElements.forEach(el =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">                </span>gsap.to(el, {</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>y: 0,</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>opacity: 1,</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>duration: 1,</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>ease: 'power3.out',</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>scrollTrigger: {</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>trigger: el,</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>start: 'top 85%',</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">                </span>});</p>
-<p class="p1"><span class="Apple-converted-space">            </span>});</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">            </span>// Glassmorphism Cards Stagger</p>
-<p class="p1"><span class="Apple-converted-space">            </span>gsap.utils.toArray('.grid').forEach(grid =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">                </span>const cards = grid.querySelectorAll('.gs-card');</p>
-<p class="p1"><span class="Apple-converted-space">                </span>if(cards.length &gt; 0) {</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>gsap.to(cards, {<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">                        </span>opacity: 1,<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">                        </span>y: 0,<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">                        </span>duration: 1.2,<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">                        </span>ease: 'power3.out',<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">                        </span>stagger: 0.15,</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>scrollTrigger: {</p>
-<p class="p1"><span class="Apple-converted-space">                            </span>trigger: grid,</p>
-<p class="p1"><span class="Apple-converted-space">                            </span>start: 'top 75%',</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>}</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>});</p>
-<p class="p1"><span class="Apple-converted-space">                </span>}</p>
-<p class="p1"><span class="Apple-converted-space">            </span>});</p>
-<p class="p1"><span class="Apple-converted-space">        </span>});</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;/script&gt;</p>
-<p class="p1">&lt;/body&gt;</p>
-<p class="p1">&lt;/html&gt;</p>
+<body class="antialiased selection:bg-accent selection:text-white">
+
+    <!-- Environmental Layers -->
+    <div class="flashlight hidden md:block"></div>
+    <div class="noise-overlay"></div>
+    <div class="grid-lines">
+        <div class="grid-line"></div>
+        <div class="grid-line"></div>
+        <div class="grid-line"></div>
+        <div class="grid-line"></div>
+        <div class="grid-line"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 w-full z-50 px-6 py-6 flex justify-between items-center transition-all duration-500 bg-white/80 backdrop-blur-md border-b border-gray-100" id="navbar">
+        <div class="text-2xl font-bold tracking-tight uppercase cursor-pointer text-accent">
+            KENTEX<span class="text-accent-light">.</span>
+        </div>
+        <div class="hidden md:flex gap-8 text-sm font-semibold tracking-wider text-accent-light">
+            <a href="#strengths" class="hover:text-accent transition-colors">STRENGTHS</a>
+            <a href="#products" class="hover:text-accent transition-colors">PRODUCTS</a>
+            <a href="#history" class="hover:text-accent transition-colors">HISTORY</a>
+        </div>
+        <a href="#contact" class="text-xs font-bold tracking-widest border border-accent rounded-full px-6 py-3 hover:bg-accent hover:text-white transition-colors duration-300">
+            CONSULT OUR EXPERTS
+        </a>
+    </nav>
+
+    <!-- SECTION 1: Hero Section -->
+    <header class="relative w-full h-screen flex flex-col justify-center items-center overflow-hidden z-10 px-6 bg-white">
+        <!-- Background Image with Parallax -->
+        <div class="absolute inset-0 z-0 scale-110" id="hero-bg">
+            <!-- Light overlay to ensure text readability -->
+            <div class="absolute inset-0 bg-white/60 backdrop-blur-[2px] z-10"></div>
+            <!-- Drive Link with Unsplash Fallback -->
+            <img src="https://drive.google.com/uc?export=view&id=1t0atjZls8MAKEmnuXNH07LzlHWi7I6dh" 
+                 onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1565514020179-026b92b84bb6?q=80&w=2070&auto=format&fit=crop';"
+                 alt="Precision Powder Metallurgy" 
+                 class="w-full h-full object-cover filter grayscale opacity-80">
+        </div>
+
+        <div class="relative z-10 max-w-7xl w-full flex flex-col items-start pt-20">
+            <!-- Vertical Text Clip Slide (Anime.js Target) -->
+            <h1 class="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tighter w-full text-accent pb-4 leading-[1.1]">
+                <div class="overflow-hidden relative pt-2">
+                    <span class="block translate-y-[110%] hero-line">Precision in</span>
+                </div>
+                <div class="overflow-hidden relative pt-2">
+                    <span class="block translate-y-[110%] hero-line">Every Grain.</span>
+                </div>
+                <div class="overflow-hidden relative pt-2 mt-4 md:mt-2">
+                    <span class="block text-accent-light translate-y-[110%] hero-line pb-4">Reliability in Every Gear.</span>
+                </div>
+            </h1>
+
+            <div class="mt-8 md:mt-16 flex flex-col md:flex-row justify-between w-full gap-8 border-t border-accent/10 pt-8 overflow-hidden">
+                <p class="max-w-xl text-accent-light text-lg md:text-xl font-normal leading-relaxed opacity-0 translate-y-8" id="hero-desc">
+                    A leading powder metallurgy manufacturer, serving global industries with nearly half a century of manufacturing excellence.
+                </p>
+                
+                <a href="#contact" class="flex items-center gap-6 opacity-0 translate-y-8 group w-max" id="hero-cta">
+                    <div class="w-16 h-16 rounded-full border border-accent flex items-center justify-center cursor-pointer bg-white shadow-lg sonar-emitter group-hover:bg-accent transition-colors duration-500">
+                        <iconify-icon icon="solar:arrow-right-down-linear" class="text-2xl text-accent group-hover:text-white transition-colors"></iconify-icon>
+                    </div>
+                    <span class="text-sm tracking-widest uppercase font-bold text-accent">Initiate Project</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- SECTION 2: Core Strengths -->
+    <section id="strengths" class="relative z-10 py-32 px-6 w-full flex justify-center bg-surface">
+        <div class="max-w-7xl w-full">
+            <div class="flex flex-col md:flex-row justify-between items-end mb-16 gap-8">
+                <div>
+                    <p class="section-num mb-6 gs-scroll-reveal opacity-0">Core Strengths</p>
+                    <h2 class="text-4xl md:text-5xl font-bold tracking-tight text-accent overflow-hidden">
+                        <span class="block gs-title-slide translate-y-[110%]">Our Competitive Edge</span>
+                    </h2>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Strength 1 -->
+                <div class="glass-card p-10 flex flex-col gs-card opacity-0 translate-y-12">
+                    <div class="w-14 h-14 rounded-lg bg-accent/5 flex items-center justify-center mb-8">
+                        <iconify-icon icon="solar:medal-ribbon-bold-duotone" class="text-4xl text-accent"></iconify-icon>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4">Premium Quality</h3>
+                    <p class="text-accent-light font-normal leading-relaxed">
+                        Inheriting manufacturing excellence since 1978, deeply rooted in Taiwan's advanced powder metallurgy technology.
+                    </p>
+                </div>
+                <!-- Strength 2 -->
+                <div class="glass-card p-10 flex flex-col gs-card opacity-0 translate-y-12">
+                    <div class="w-14 h-14 rounded-lg bg-accent/5 flex items-center justify-center mb-8">
+                        <iconify-icon icon="solar:chart-square-bold-duotone" class="text-4xl text-accent"></iconify-icon>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4">Competitive Pricing</h3>
+                    <p class="text-accent-light font-normal leading-relaxed">
+                        Delivering world-class standards while providing the most optimized cost structure for our global partners.
+                    </p>
+                </div>
+                <!-- Strength 3 -->
+                <div class="glass-card p-10 flex flex-col gs-card opacity-0 translate-y-12">
+                    <div class="w-14 h-14 rounded-lg bg-accent/5 flex items-center justify-center mb-8">
+                        <iconify-icon icon="solar:box-minimalistic-bold-duotone" class="text-4xl text-accent"></iconify-icon>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4">One-Stop Solutions</h3>
+                    <p class="text-accent-light font-normal leading-relaxed">
+                        Integrating Taiwan's industrial supply chain to meet comprehensive needs from processing to post-treatment.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 3: Product Showcase -->
+    <section id="products" class="relative z-10 py-32 px-6 w-full flex justify-center bg-white border-y border-gray-100">
+        <div class="max-w-7xl w-full">
+            <div class="text-center mb-20 flex flex-col items-center">
+                <p class="section-num mb-6 gs-scroll-reveal opacity-0 justify-center">Product Showcase</p>
+                <h2 class="text-4xl md:text-5xl font-bold tracking-tight text-accent overflow-hidden mb-6">
+                    <span class="block gs-title-slide translate-y-[110%]">Engineered Applications</span>
+                </h2>
+                <p class="max-w-2xl text-accent-light gs-scroll-reveal opacity-0">
+                    Extensively serving global industries including household hardware and the automotive aftermarket.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Card 1 -->
+                <div class="glass-card flex flex-col gs-card opacity-0 translate-y-12 group cursor-pointer">
+                    <div class="img-card-wrap h-64 m-2">
+                        <img src="https://drive.google.com/uc?export=view&id=1Mn-6g3sc7wAJlxCT2jzajH6vHpJpLn2C" 
+                             onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?q=80&w=1000&auto=format&fit=crop';"
+                             alt="Transportation Components" class="w-full h-full object-cover filter grayscale contrast-125">
+                    </div>
+                    <div class="p-8 flex-grow flex flex-col justify-between">
+                        <h3 class="text-xl font-bold mb-6">Transportation Components</h3>
+                        <a href="#" class="inline-flex items-center gap-2 text-sm font-bold text-accent group-hover:text-black transition-colors">
+                            <iconify-icon icon="solar:document-text-bold-duotone" class="text-lg"></iconify-icon>
+                            Download Detailed Catalog
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Card 2 -->
+                <div class="glass-card flex flex-col gs-card opacity-0 translate-y-12 group cursor-pointer">
+                    <div class="img-card-wrap h-64 m-2">
+                        <img src="https://drive.google.com/uc?export=view&id=1jqUKysXviw9oxXuJDcaI87CUFwWJHA5w" 
+                             onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=1000&auto=format&fit=crop';"
+                             alt="CNC Machined Products" class="w-full h-full object-cover filter grayscale contrast-125">
+                    </div>
+                    <div class="p-8 flex-grow flex flex-col justify-between">
+                        <h3 class="text-xl font-bold mb-6">CNC Machined Products</h3>
+                        <a href="#" class="inline-flex items-center gap-2 text-sm font-bold text-accent group-hover:text-black transition-colors">
+                            <iconify-icon icon="solar:document-text-bold-duotone" class="text-lg"></iconify-icon>
+                            Download Detailed Catalog
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="glass-card flex flex-col gs-card opacity-0 translate-y-12 group cursor-pointer">
+                    <div class="img-card-wrap h-64 m-2">
+                        <img src="https://drive.google.com/uc?export=view&id=1IAHaIj6K1sHUgEDo0kkI5CtfLYfPn0Ev" 
+                             onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1537563063548-26156e729a8d?q=80&w=1000&auto=format&fit=crop';"
+                             alt="High-Precision Transmission" class="w-full h-full object-cover filter grayscale contrast-125">
+                    </div>
+                    <div class="p-8 flex-grow flex flex-col justify-between">
+                        <h3 class="text-xl font-bold mb-6">High-Precision Transmission</h3>
+                        <a href="#" class="inline-flex items-center gap-2 text-sm font-bold text-accent group-hover:text-black transition-colors">
+                            <iconify-icon icon="solar:document-text-bold-duotone" class="text-lg"></iconify-icon>
+                            Download Detailed Catalog
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 4: Trust & History -->
+    <section id="history" class="relative z-10 py-32 px-6 w-full bg-surface">
+        <div class="max-w-5xl mx-auto w-full">
+            <div class="text-center mb-16">
+                <p class="section-num justify-center mb-6 gs-scroll-reveal opacity-0">Trust & History</p>
+                <h2 class="text-4xl font-bold tracking-tight text-accent overflow-hidden">
+                    <span class="block gs-title-slide translate-y-[110%]">Decades of Reliability</span>
+                </h2>
+            </div>
+            
+            <div class="flex flex-col md:flex-row justify-between items-center gap-16">
+                <!-- Milestones -->
+                <div class="flex-1 border-l-2 border-accent/20 pl-8 space-y-10 gs-scroll-reveal opacity-0">
+                    <div class="relative">
+                        <div class="absolute -left-[41px] top-1 w-5 h-5 bg-white border-4 border-accent rounded-full"></div>
+                        <h4 class="text-3xl font-bold text-accent mb-2">1978</h4>
+                        <p class="text-accent-light">Founded in Taiwan, establishing core metallurgy techniques.</p>
+                    </div>
+                    <div class="relative">
+                        <div class="absolute -left-[41px] top-1 w-5 h-5 bg-white border-4 border-accent rounded-full"></div>
+                        <h4 class="text-3xl font-bold text-accent mb-2">2000 & 2010</h4>
+                        <p class="text-accent-light">Strategic facility expansions to meet global supply chain demands.</p>
+                    </div>
+                </div>
+
+                <!-- ISO Certifications -->
+                <div class="flex-1 flex justify-center gap-8 gs-scroll-reveal opacity-0">
+                    <div class="flex flex-col items-center gap-4 group">
+                        <div class="w-32 h-32 rounded-full border border-gray-200 bg-white flex items-center justify-center shadow-sm group-hover:shadow-md transition-shadow">
+                            <iconify-icon icon="solar:shield-check-bold-duotone" class="text-6xl text-accent"></iconify-icon>
+                        </div>
+                        <span class="font-bold text-accent tracking-wider">ISO 9001</span>
+                    </div>
+                    <div class="flex flex-col items-center gap-4 group">
+                        <div class="w-32 h-32 rounded-full border border-gray-200 bg-white flex items-center justify-center shadow-sm group-hover:shadow-md transition-shadow">
+                            <iconify-icon icon="solar:leaf-bold-duotone" class="text-6xl text-accent"></iconify-icon>
+                        </div>
+                        <span class="font-bold text-accent tracking-wider">ISO 14001</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 5: Footer / Contact -->
+    <footer id="contact" class="relative z-10 py-32 px-6 w-full bg-accent text-white overflow-hidden">
+        <!-- Abstract gradient blob -->
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-white/5 rounded-full blur-[120px] pointer-events-none z-0"></div>
+        
+        <div class="max-w-7xl mx-auto w-full relative z-10 flex flex-col items-center text-center">
+            <h2 class="text-4xl md:text-6xl font-bold tracking-tighter mb-12 overflow-hidden">
+                <span class="block text-white/70 gs-title-slide translate-y-[110%] mb-2">Ready to start your next</span>
+                <span class="block text-white gs-title-slide translate-y-[110%]">precision project?</span>
+            </h2>
+            
+            <a href="mailto:info@kentex-tw.com" class="relative overflow-hidden rounded-full bg-white text-accent font-bold uppercase tracking-widest px-12 py-6 text-sm md:text-base group shadow-2xl hover:shadow-[0_0_40px_rgba(255,255,255,0.2)] transition-shadow duration-500 gs-scroll-reveal opacity-0">
+                <span class="relative z-10 flex items-center gap-3">
+                    <iconify-icon icon="solar:letter-bold-duotone" class="text-xl"></iconify-icon>
+                    info@kentex-tw.com
+                </span>
+                <div class="absolute inset-0 bg-gray-100 transform scale-y-0 group-hover:scale-y-100 origin-bottom transition-transform duration-500 ease-out z-0"></div>
+            </a>
+        </div>
+
+        <div class="max-w-7xl mx-auto w-full relative z-10 mt-32 flex flex-col md:flex-row justify-between items-center pt-8 border-t border-white/20 text-xs text-white/70 font-semibold tracking-widest uppercase">
+            <div class="flex items-center gap-2 mb-4 md:mb-0">
+                <iconify-icon icon="solar:map-point-bold-duotone" class="text-lg"></iconify-icon>
+                Headquarters: Taipei, Taiwan
+            </div>
+            <p>© 2026 KENTEX INDUSTRY Co., Ltd.</p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // --- 1. Flashlight Halo Effect (Light Mode Optimized) ---
+            const updateFlashlight = (e) => {
+                document.documentElement.style.setProperty('--cursor-x', `${e.clientX}px`);
+                document.documentElement.style.setProperty('--cursor-y', `${e.clientY}px`);
+            };
+            window.addEventListener('mousemove', updateFlashlight);
+
+            // --- 2. Anime.js Initial Vertical Text Reveal (Hero) ---
+            // Animate Hero Main Titles (Vertical Clip Slide)
+            anime({
+                targets: '.hero-line',
+                translateY: ['110%', '0%'],
+                duration: 1200,
+                easing: 'easeOutQuint',
+                delay: anime.stagger(150, {start: 200})
+            });
+
+            // Animate Desc & CTA
+            anime({
+                targets: ['#hero-desc', '#hero-cta'],
+                translateY: [30, 0],
+                opacity: [0, 1],
+                duration: 1000,
+                easing: 'easeOutExpo',
+                delay: anime.stagger(200, {start: 700})
+            });
+
+            // --- 3. GSAP Animations & ScrollTrigger ---
+            gsap.registerPlugin(ScrollTrigger);
+
+            // Navbar behavior on scroll
+            let lastScroll = 0;
+            const navbar = document.getElementById('navbar');
+            window.addEventListener('scroll', () => {
+                const currentScroll = window.pageYOffset;
+                if (currentScroll > 100 && currentScroll > lastScroll) {
+                    navbar.style.transform = 'translateY(-100%)';
+                } else {
+                    navbar.style.transform = 'translateY(0)';
+                }
+                lastScroll = currentScroll;
+            });
+
+            // Parallax Hero Background
+            gsap.to('#hero-bg', {
+                yPercent: 30,
+                ease: 'none',
+                scrollTrigger: {
+                    trigger: 'header',
+                    start: 'top top',
+                    end: 'bottom top',
+                    scrub: true
+                }
+            });
+
+            // Reveal Titles on Scroll
+            const slideTitles = document.querySelectorAll('.gs-title-slide');
+            slideTitles.forEach(title => {
+                gsap.to(title, {
+                    y: '0%',
+                    duration: 1.2,
+                    ease: 'power4.out',
+                    scrollTrigger: {
+                        trigger: title.closest('.overflow-hidden') || title,
+                        start: 'top 85%',
+                    }
+                });
+            });
+
+            // Generic Fade/Up reveals
+            const revealElements = document.querySelectorAll('.gs-scroll-reveal');
+            revealElements.forEach(el => {
+                gsap.to(el, {
+                    y: 0,
+                    opacity: 1,
+                    duration: 1,
+                    ease: 'power3.out',
+                    scrollTrigger: {
+                        trigger: el,
+                        start: 'top 85%',
+                    }
+                });
+            });
+
+            // Glassmorphism Cards Stagger
+            gsap.utils.toArray('.grid').forEach(grid => {
+                const cards = grid.querySelectorAll('.gs-card');
+                if(cards.length > 0) {
+                    gsap.to(cards, { 
+                        opacity: 1, 
+                        y: 0, 
+                        duration: 1.2, 
+                        ease: 'power3.out', 
+                        stagger: 0.15,
+                        scrollTrigger: {
+                            trigger: grid,
+                            start: 'top 75%',
+                        }
+                    });
+                }
+            });
+        });
+    </script>
 </body>
 </html>
